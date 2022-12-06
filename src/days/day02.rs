@@ -1,8 +1,19 @@
 
-pub fn solve(input: &str) {
+pub fn solve_a(input: &str) {
     let all_pairs = parse_all_hands(input);
     let result = play_all_hands(all_pairs);
     println!("{result}");
+}
+
+pub fn solve_b(input: &str) {
+    let all_pairs = parse_all_hands_b(input);
+    let result = play_all_hands(all_pairs);
+    println!("{result}");
+}
+
+pub fn solve(input: &str) {
+    solve_a(input);
+    solve_b(input);
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -82,6 +93,24 @@ fn get_hand(code: &str) -> HandShape {
         _ => { unimplemented!() }
     }
 }
+
+fn get_expected_result(code: &str) -> MatchOutcome {
+    match code {
+        "X" => MatchOutcome::Lose,
+        "Y" => MatchOutcome::Draw,
+        "Z" => MatchOutcome::Win,
+        _ => { unimplemented!() }
+    }
+}
+
+fn get_hand_from_expected_result(opponents_hand: HandShape, outcome: MatchOutcome) -> HandShape {
+    match outcome {
+        MatchOutcome::Lose => opponents_hand.beats(),
+        MatchOutcome::Draw  => opponents_hand,
+        MatchOutcome::Win => opponents_hand.beats().beats(),
+    }
+}
+
 fn parse_all_hands(input: &str) -> Vec<(HandShape, HandShape)> {
     let games = str::trim(input).split("\n");
     let mut all_hands: Vec<(HandShape, HandShape)> = vec![];
@@ -90,6 +119,21 @@ fn parse_all_hands(input: &str) -> Vec<(HandShape, HandShape)> {
         let (opponent_code, my_code) = (raw_hands.next().unwrap(), raw_hands.next().unwrap());
         all_hands.push(
             (get_hand(my_code), get_hand(opponent_code))
+        )
+    }
+    all_hands
+}
+
+fn parse_all_hands_b(input: &str) -> Vec<(HandShape, HandShape)> {
+    let games = str::trim(input).split("\n");
+    let mut all_hands: Vec<(HandShape, HandShape)> = vec![];
+    for game in games {
+        let mut raw_hands = str::trim(game).split(" ");
+        let (opponent_code, my_code) = (raw_hands.next().unwrap(), raw_hands.next().unwrap());
+        let opponents_hand = get_hand(opponent_code);
+        let my_hand = get_hand_from_expected_result(opponents_hand, get_expected_result(my_code));
+        all_hands.push(
+            (my_hand, opponents_hand)
         )
     }
     all_hands
@@ -146,5 +190,16 @@ C Z";
         let all_pairs = parse_all_hands(input);
         let result = play_all_hands(all_pairs);
         assert_eq!(result, 15)
+    }
+
+    #[test]
+    fn test_solve_b() {
+        let input = "A Y
+B X
+C Z";
+
+        let all_pairs = parse_all_hands_b(input);
+        let result = play_all_hands(all_pairs);
+        assert_eq!(result, 12)
     }
 }
