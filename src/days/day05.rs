@@ -1,15 +1,31 @@
 pub fn solve(input: &str){
     let (matrix_input, instruction_input) = input.split_once("\n\n").unwrap();
-    let mut stacks = parse_stacks(matrix_input);
+    let stacks = parse_stacks(matrix_input);
     let instructions = parse_many_instructions(instruction_input);
 
-    for instruction in instructions {
+
+    // solves for a
+    let mut stacks_a = stacks.clone();
+    for instruction in &instructions {
         for _ in 0..instruction.count {
-            let stack_crate = stacks[instruction.from - 1].pop().unwrap();
-            stacks[instruction.to - 1].push(stack_crate)
+            let stack_crate = stacks_a[instruction.from - 1].pop().unwrap();
+            stacks_a[instruction.to - 1].push(stack_crate)
         }
     }
-    debug_print_stacks(stacks.clone());
+    // debug_print_stacks(stacks_a.clone());
+
+    // solves for b
+    let mut stacksb = stacks.clone();
+    for instruction in &instructions {
+        let mut crates_to_move: Vec<char> = vec![];
+        for _ in 0..instruction.count {
+            let stack_crate = stacksb[instruction.from - 1].pop().unwrap();
+            crates_to_move.push(stack_crate)
+        }
+        crates_to_move.reverse();
+        stacksb[instruction.to - 1].append(&mut crates_to_move)
+    }
+    debug_print_stacks(stacksb.clone());
 }
 
 #[derive(Debug)]
