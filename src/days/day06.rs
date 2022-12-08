@@ -6,7 +6,9 @@ use std::collections::HashSet;
 
 pub fn solve(input: &str) {
     let res_a = solve_a(input);
-    println!("{res_a}");
+    println!("a={res_a}");
+    let res_b = solve_b(input);
+    println!("b={res_b}");
 }
 
 struct Queue<T> {
@@ -28,23 +30,32 @@ impl<T> Queue<T> {
   }
 }
 
-fn solve_a(input: &str) -> i32 {
-    let codes = input.as_bytes();
+fn find_message(codes: &[u8], unique_length: usize) -> usize {
     let mut q: Queue<char> = Queue::new();
     let mut res = 0;
     for code in codes {
         let c = *code as char;
-        if q.length() == 4 {
+        if q.length() == unique_length {
             q.dequeue();
         }
         q.enqueue(c);
         res += 1;
         let hash_set: HashSet<char> = HashSet::from_iter(q.queue.clone());
-        if hash_set.len() == 4 {
+        if hash_set.len() == unique_length {
             return res
         }
     }
-    return -1
+    unreachable!()
+}
+
+fn solve_a(input: &str) -> usize {
+    let codes = input.as_bytes();
+    return find_message(codes, 4)
+}
+
+fn solve_b(input: &str) -> usize {
+    let codes = input.as_bytes();
+    return find_message(codes, 14);
 }
 
 #[cfg(test)]
@@ -56,5 +67,13 @@ mod tests {
         assert_eq!(solve_a("nppdvjthqldpwncqszvftbrmjlhg"), 6);
         assert_eq!(solve_a("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 10);
         assert_eq!(solve_a("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"), 11);
+    }
+    #[test]
+    fn test_solve_b() {
+        assert_eq!(solve_b("mjqjpqmgbljsphdztnvjfqwrcgsmlb"), 19);
+        assert_eq!(solve_b("bvwbjplbgvbhsrlpgdmjqwftvncz"), 23);
+        assert_eq!(solve_b("nppdvjthqldpwncqszvftbrmjlhg"), 23);
+        assert_eq!(solve_b("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"), 29);
+        assert_eq!(solve_b("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"), 26);
     }
 }
