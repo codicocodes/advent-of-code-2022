@@ -11,36 +11,17 @@ pub fn solve(input: &str) {
     println!("b={res_b}");
 }
 
-struct Queue<T> {
-  queue: Vec<T>,
-}
-
-impl<T> Queue<T> {
-  fn new() -> Self {
-    Queue { queue: Vec::new() }
-  }
-  fn enqueue(&mut self, item: T) {
-      self.queue.push(item)
-  }
-  fn dequeue(&mut self) -> T {
-      self.queue.remove(0)
-  }
-  fn length(&self) -> usize {
-      self.queue.len()
-  }
-}
-
 fn find_message(codes: &[u8], unique_length: usize) -> usize {
-    let mut q: Queue<char> = Queue::new();
+    let mut q: Vec<char> = vec![];
     let mut res = 0;
     for code in codes {
         let c = *code as char;
-        if q.length() == unique_length {
-            q.dequeue();
+        if q.len() == unique_length {
+            q.remove(0);
         }
-        q.enqueue(c);
+        q.push(c);
         res += 1;
-        let hash_set: HashSet<char> = HashSet::from_iter(q.queue.clone());
+        let hash_set: HashSet<char> = HashSet::from_iter(q.clone());
         if hash_set.len() == unique_length {
             return res
         }
